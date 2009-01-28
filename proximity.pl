@@ -11,7 +11,7 @@ while (1) {
     my $duration  = time - time_of_last_movement();
     if ($duration > $blink) {  # no motion in a while
         if ($he_is_here) { # he left!
-            warn strftime( "You left at %T\n", localtime );
+            warn strftime( "You left at %T\n", localtime( time - $duration ) );
             adium('away');
         }
         $he_is_here = 0;
