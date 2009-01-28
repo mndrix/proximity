@@ -18,7 +18,7 @@ while (1) {
     }
     else {  # motion recently
         if ( not $he_is_here ) { # he arrived!
-            warn strftime( "You arrived at %T\n", localtime );
+            warn strftime( "You arrived at %T\n\n", localtime );
             adium('available');
         }
         $he_is_here = 1;
