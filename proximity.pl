@@ -3,7 +3,7 @@ use warnings;
 use POSIX qw( strftime );
 
 my $periscope_dir   = "$ENV{HOME}/Pictures/Periscope";
-my $blink           = 20;
+my $blink           = 40;
 my $poll            = 5;
 my $he_is_here      = 1;  # somebody must be here, he started the script
 
