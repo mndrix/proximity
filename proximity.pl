@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use POSIX qw( strftime );
+use IO::Socket::UNIX;
 
 my $periscope_dir   = "$ENV{HOME}/Pictures/Periscope";
 my $blink           = 40;
@@ -12,23 +13,38 @@ while (1) {
     if ($duration > $blink) {  # no motion in a while
         if ($he_is_here) { # he left!
             warn strftime( "You left at %T\n", localtime( time - $duration ) );
-            adium('away');
+            irssi('away');
         }
         $he_is_here = 0;
     }
     else {  # motion recently
         if ( not $he_is_here ) { # he arrived!
             warn strftime( "You arrived at %T\n\n", localtime );
-            adium('available');
+            irssi('available');
         }
         $he_is_here = 1;
     }
     sleep $poll;
 }
 
-sub adium {
+sub irssi {
     my ($status) = @_;
-    system qq{osascript -e 'tell application "Adium" to go $status'};
+    my $command = $status eq 'away'      ? 'away -all Away'
+                : $status eq 'available' ? 'away -all'
+                : die "Invalid status '$status'"
+                ;
+
+    # connect to irssi's socket (from socket-interface.pl)
+    my $socket = IO::Socket::UNIX->new(
+        Peer => $ENV{HOME} . '/.irssi/socket',
+        Type => SOCK_STREAM,
+    ) or die $@;
+
+    # send the command
+    print $socket "command $command\n" or die "Unable to print to socket: $!";
+    my $response = <$socket>;  # wait for the server's response
+    close $socket;
+    return;
 }
 
 sub time_of_last_movement {
